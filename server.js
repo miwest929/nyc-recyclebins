@@ -32,6 +32,13 @@ var loadRecycleBinData = function(path) {
   });
 };
 
+app.get('/neighborhoods', function(req, res, next) {
+  neighborhoodGeoJson = fs.readFileSync("data/nyc-neighborhoods.geojson");
+
+  res.setHeader('content-type', 'application/json');
+  res.status(200).send(neighborhoodGeoJson);
+});
+
 app.get('/bins', function(req, res, next) {
   var recycleBins = loadRecycleBinData("data/public_recycling_bins.json");
 

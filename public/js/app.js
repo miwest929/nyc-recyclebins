@@ -12,6 +12,10 @@ var recycleMarker = L.AwesomeMarkers.icon({
   markerColor: 'green'
 });
 
+$.get('/neighborhoods', function(data, status) {
+  L.geoJson(data).addTo(map);
+});
+
 $.get("/bins", function(data, status) {
   data['data'].forEach(function(bin) {
     if (bin['latitude'] !== null && bin['longitude'] !== null) {
