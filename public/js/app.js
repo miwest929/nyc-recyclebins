@@ -21,11 +21,11 @@ $.get('/neighborhoods', function(data, status) {
     };
   };
 
-  var bronxStyle = getStyle("#ff7800");
+  var bronxStyle = getStyle("#cc33ff");
   var brooklynStyle = getStyle("#0078ff");
-  var manhattanStyle = getStyle("#ff0078");
+  var manhattanStyle = getStyle("#339966");
   var queensStyle = getStyle("#ffff78");
-  var statenIslandStyle = getStyle("#ff78ff");
+  var statenIslandStyle = getStyle("#cc3300");
   
   L.geoJson(data, {
     style: function(feature) {
