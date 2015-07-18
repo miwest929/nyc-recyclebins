@@ -17,9 +17,9 @@ $.get("/bins", function(data, status) {
     if (bin['latitude'] !== null && bin['longitude'] !== null) {
       L.marker([bin['latitude'], bin['longitude']], {icon: recycleMarker})
        .addTo(map)
-       .bindPopup( bin['name'] + " / " + bin['address'] );
+       .bindPopup( `${bin['name']} / ${bin['address']}` );
     } else {
-      console.log(`Bin called '${bin['name']}'`);
+      console.log( `Bin called '${bin['name']}'` );
     }
   });
 });
