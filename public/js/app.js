@@ -13,7 +13,31 @@ var recycleMarker = L.AwesomeMarkers.icon({
 });
 
 $.get('/neighborhoods', function(data, status) {
-  L.geoJson(data).addTo(map);
+  var getStyle = function(color) {
+    return {
+      "color": color,
+      "weight": 5,
+      "opacity": 0.65
+    };
+  };
+
+  var bronxStyle = getStyle("#ff7800");
+  var brooklynStyle = getStyle("#0078ff");
+  var manhattanStyle = getStyle("#ff0078");
+  var queensStyle = getStyle("#ffff78");
+  var statenIslandStyle = getStyle("#ff78ff");
+  
+  L.geoJson(data, {
+    style: function(feature) {
+      switch(feature.properties.borough) {
+        case 'Bronx': return bronxStyle;
+        case 'Brooklyn': return brooklynStyle;
+        case 'Manhattan': return manhattanStyle;
+        case 'Queens': return queensStyle;
+        case 'Staten Island': return statenIslandStyle;
+      }
+    }
+  }).addTo(map);
 });
 
 $.get("/bins", function(data, status) {
