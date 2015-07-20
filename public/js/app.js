@@ -17,18 +17,48 @@ $.get('/neighborhoods', function(data, status) {
     return {
       "color": color,
       "weight": 5,
-      "opacity": 0.65
+      "opacity": 0.2
     };
   };
 
   var bronxStyle = getStyle("#cc33ff");
   var brooklynStyle = getStyle("#0078ff");
   var manhattanStyle = getStyle("#339966");
-  var queensStyle = getStyle("#ffff78");
+  var queensStyle = getStyle("#f0f00b");
   var statenIslandStyle = getStyle("#cc3300");
-  
-  L.geoJson(data, {
+
+  var getNeighborhood = function(lat, lng, neighborhoods) {
+    // TODO: Implement me. Will use a Quadtree data structure to provide
+    //       range queries. Find a description of the algorithm at:
+    //       http://www.cs.umd.edu/~meesh/420/Notes/PMQuadtree/pm_quadtree_samet.pdf
+  };
+
+  map.on('mousemove', function(event) {
+    var mouseLat = event.latlng.lat;
+    var mouseLng = event.latlng.lng;
+
+    var neighborhood = getNeighborhood(mouseLat, mouseLng, neighborhoods);
+    console.log(`NEIGHBORHOOD: ${neighborhood}`);
+  });
+
+  var neighborhoods = [];
+  neighborhoodLayer = L.geoJson(data, {
+    onEachFeature: function (feature, layer) {
+      console.log(JSON.stringify(feature));
+      neighborhoods.push({
+        name: feature.properties.neighborhood,
+        borough: feature.properties.borough,
+        points: feature.geometry.coordinates
+      });
+      layer.bindPopup(feature.properties.neighborhood);
+    },
     style: function(feature) {
+      /*neighborhoods.push({
+        name: feature.properties.neighborhood,
+        borough: feature.properties.borough,
+        points: feature.geometry.coordinates
+      });*/
+
       switch(feature.properties.borough) {
         case 'Bronx': return bronxStyle;
         case 'Brooklyn': return brooklynStyle;
@@ -41,13 +71,19 @@ $.get('/neighborhoods', function(data, status) {
 });
 
 $.get("/bins", function(data, status) {
+  var binMarkers = [];
   data['data'].forEach(function(bin) {
     if (bin['latitude'] !== null && bin['longitude'] !== null) {
-      L.marker([bin['latitude'], bin['longitude']], {icon: recycleMarker})
-       .addTo(map)
-       .bindPopup( `${bin['name']} / ${bin['address']}` );
+      var marker = L.marker([bin['latitude'], bin['longitude']], {icon: recycleMarker});
+      binMarkers.push(marker);
+      marker.addTo(map)
+            .bindPopup( `${bin['name']} / ${bin['address']}` );
     } else {
-      console.log( `Bin called '${bin['name']}'` );
+      console.log( `Couldn't retrieve the coordinates for the recycle bin at '${bin['name']}'.` );
     }
   });
+
+  console.log(`Number of bins: ${binMarkers.length}`);
+  var binGroup = new L.featureGroup(binMarkers);
+  map.fitBounds(binGroup.getBounds().pad(0.5));
 });
