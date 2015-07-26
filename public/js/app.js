@@ -1,3 +1,5 @@
+var shouldDisplayMarkers = false;
+
 var graph = generateGraph();
 graph.colorGraph(4);
 
@@ -62,33 +64,20 @@ $.get('/neighborhoods', function(data, status) {
       }
     }
   }).addTo(map);
-
-/*  map.on('mousemove', function(event) {
-    var mouseLat = event.latlng.lat;
-    var mouseLng = event.latlng.lng;
-
-  //  var feature = leafletPip.pointInLayer([mouseLat, mouseLng], neighborhoodLayer, false)
-
-  //  console.log(`NEIGHBORHOOD: ${JSON.stringify(feature)}`);
-});*/
 });
 
 // Retrieve and render the recycle bin markers
-$.get("/bins", function(data, status) {
-  var binMarkers = [];
-  data['data'].forEach(function(bin) {
-    if (bin['latitude'] !== null && bin['longitude'] !== null) {
-      var marker = L.marker([bin['latitude'], bin['longitude']], {icon: recycleMarker});
-    //  binMarkers.push(marker);
-    //  marker.addTo(map)
-    //        .bindPopup( `${bin['name']} / ${bin['address']}` );
-    } else {
-      console.log( `Couldn't retrieve the coordinates for the recycle bin at '${bin['name']}'.` );
-    }
+if (shouldDisplayMarkers === true) {
+  $.get("/bins", function(data, status) {
+    var binMarkers = [];
+    data['data'].forEach(function(bin) {
+      if (bin['latitude'] !== null && bin['longitude'] !== null) {
+        var marker = L.marker([bin['latitude'], bin['longitude']], {icon: recycleMarker});
+        marker.addTo(map)
+              .bindPopup( `${bin['name']} / ${bin['address']}` );
+      } else {
+        console.log( `Couldn't retrieve the coordinates for the recycle bin at '${bin['name']}'.` );
+      }
+    });
   });
-
-  // Set zoom level of map so that all markers are visible
-  console.log(`Number of bins: ${binMarkers.length}`);
-  //var binGroup = new L.featureGroup(binMarkers);
-  //map.fitBounds(binGroup.getBounds().pad(0.5));
-});
+}
