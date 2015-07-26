@@ -72,7 +72,7 @@ Graph.prototype.colorGraph = function(colorCount) {
       // if not adjacent to any node using the currentColor then ...
       if (coloredWithCurrent.indexOf(n.name) === -1) {
         n.attrs.color = currentColor;
-        coloredWithCurrent.concat(
+        coloredWithCurrent = coloredWithCurrent.concat(
           n.edge_list.map(function (n) {return n.name;})
         );
 

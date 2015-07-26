@@ -31,8 +31,6 @@ $.get('/neighborhoods', function(data, status) {
   var queensStyle = getStyle("#f0f00b");
   var statenIslandStyle = getStyle("#cc3300");
 
-
-
   var getNeighborhood = function(lat, lng, neighborhoods) {
     // TODO: Implement me. Will use a Quadtree data structure to provide
     //       range queries. Find a description of the algorithm at:
