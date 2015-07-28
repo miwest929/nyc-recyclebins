@@ -39,6 +39,11 @@ $.get('/neighborhoods', function(data, status) {
     //       http://www.cs.umd.edu/~meesh/420/Notes/PMQuadtree/pm_quadtree_samet.pdf
   };
 
+  var getColorized = function(colorIndex) {
+    var colorStyle = ["#339966", "#0078ff", "#cc33ff", "#f0f00b", "#cc3300"];
+    return getStyle( colorStyle[colorIndex] );
+  };
+
   var neighborhoodLayer = L.geoJson(data, {
     onEachFeature: function (feature, layer) {
       neighborhoods.push(feature);
@@ -47,13 +52,20 @@ $.get('/neighborhoods', function(data, status) {
     style: function(feature) {
       switch(feature.properties.borough) {
         case 'Bronx': return bronxStyle;
-        case 'Brooklyn': return brooklynStyle;
-        case 'Manhattan':
-          var colorStyle = ["#339966", "#0078ff", "#cc33ff", "#f0f00b", "#cc3300"];
+        case 'Brooklyn':
           var node = graph.findNode(feature.properties.neighborhood);
 
           if (node !== undefined) {
-            return getStyle( colorStyle[node.attrs.color] );
+            return getColorized(node.attrs.color);
+          } else {
+            console.log(`Couldn't find a node for ${feature.properties.neighborhood}. Using default styling.`);
+            return brooklynStyle;
+          }
+        case 'Manhattan':
+          var node = graph.findNode(feature.properties.neighborhood);
+
+          if (node !== undefined) {
+            return getColorized(node.attrs.color);
           }
           else {
             console.log(`Couldn't find a node for ${feature.properties.neighborhood}. Using default styling.`);
