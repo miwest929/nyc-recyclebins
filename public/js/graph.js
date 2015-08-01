@@ -1,3 +1,28 @@
+// Array.prototype.find is a method in ECMAScript 6. The below snippet polyfills
+// the functionality if it doesn't exist in your Javascript implementation.
+if (!Array.prototype.find) {
+  Array.prototype.find = function(predicate) {
+    if (this == null) {
+      throw new TypeError('Array.prototype.find called on null or undefined');
+    }
+    if (typeof predicate !== 'function') {
+      throw new TypeError('predicate must be a function');
+    }
+    var list = Object(this);
+    var length = list.length >>> 0;
+    var thisArg = arguments[1];
+    var value;
+
+    for (var i = 0; i < length; i++) {
+      value = list[i];
+      if (predicate.call(thisArg, value, i, list)) {
+        return value;
+      }
+    }
+    return undefined;
+  };
+}
+
 var Node = function(name, attrs){
   this.edge_list = [];
   this.name = name;
@@ -13,6 +38,12 @@ Node.prototype.addEdge = function(end){
   this.edge_list.push(end);
 }
 
+Node.prototype.isConnected = function(node) {
+  return this.edge_list.find(function(element, index, list) {
+    return (element.name === node.name);
+  });
+}
+
 var Graph = function(){
   this.node_list = [];
 }
@@ -26,11 +57,16 @@ Graph.prototype.findNode = function(name) {
 }
 
 Graph.prototype.addEdge = function(s, e) {
-  /*var findNodeFilterFn = function(searchValue) {
-    return (function (value) { return value.name === searchValue; });
-  };*/
-  var startNode = this.findNode(s); //this.node_list.filter( findNodeFilterFn(s) )[0];
-  var endNode = this.findNode(e); //this.node_list.filter( findNodeFilterFn(e) )[0];
+  var checkConnection = function(sNode, eNode) {
+    var exists = sNode.isConnected(eNode);
+    if (exists) {
+      console.log(`WARNING: '${sNode.name}' is already connected to '${eNode.name}'`);
+    }
+
+    return exists;
+  };
+  var startNode = this.findNode(s);
+  var endNode = this.findNode(e);
 
   if (!startNode) {
     startNode = new Node(s);
@@ -42,8 +78,11 @@ Graph.prototype.addEdge = function(s, e) {
     this.node_list.push(endNode);
   }
 
-  startNode.addEdge(endNode);
-  endNode.addEdge(startNode);
+  if (!checkConnection(startNode, endNode))
+    startNode.addEdge(endNode);
+
+  if (!checkConnection(endNode, startNode))
+    endNode.addEdge(startNode);
 }
 
 Graph.prototype.colorGraph = function(colorCount) {

@@ -1,4 +1,4 @@
-var shouldDisplayMarkers = false;
+var shouldDisplayMarkers = true;
 
 var graph = generateGraph();
 graph.colorGraph(4);
@@ -47,11 +47,19 @@ $.get('/neighborhoods', function(data, status) {
   var neighborhoodLayer = L.geoJson(data, {
     onEachFeature: function (feature, layer) {
       neighborhoods.push(feature);
-      layer.bindPopup(feature.properties.neighborhood);
+      //layer.bindPopup(feature.properties.neighborhood);
     },
     style: function(feature) {
       switch(feature.properties.borough) {
-        case 'Bronx': return bronxStyle;
+        case 'Bronx':
+          var node = graph.findNode(feature.properties.neighborhood);
+
+          if (node !== undefined) {
+            return getColorized(node.attrs.color);
+          } else {
+            console.log(`Couldn't find a node for ${feature.properties.neighborhood}. Using default styling.`);
+            return bronxStyle;
+          }
         case 'Brooklyn':
           var node = graph.findNode(feature.properties.neighborhood);
 
@@ -76,6 +84,18 @@ $.get('/neighborhoods', function(data, status) {
       }
     }
   }).addTo(map);
+
+  var source = null;
+  neighborhoodLayer.on("click", function (e) {
+    if (source === null) {
+      source = e.layer.feature.properties.neighborhood;
+    }
+    else {
+      var destination = e.layer.feature.properties.neighborhood;
+      console.log(`graph.addEdge('${source}', '${destination}');`);
+      source = null;
+    }
+  });
 });
 
 // Retrieve and render the recycle bin markers
